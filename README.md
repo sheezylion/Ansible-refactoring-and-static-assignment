@@ -23,7 +23,7 @@ Result:
 #### 2. Change permissions to this directory, so Jenkins could save files there
 
 ```
-chmod -R 0777 /home/ubuntu/ansible-config-artifact
+chmod -R 777 /home/ubuntu/ansible-config-artifact
 ```
 
 Result:
@@ -66,3 +66,26 @@ Remove the line - checking jenkins build
 
 <img width="1677" alt="Screenshot 2024-07-15 at 17 42 38" src="https://github.com/user-attachments/assets/df88c35b-cdc4-4d65-96e9-e04d9033013f">
 
+If both Jenkins jobs have completed one after another - you shall see your files inside /home/ubuntu/ansible-config-artifact directory and it will be updated with every commit to your master branch. Now your Jenkins pipeline is more neat and clean.
+
+Result:
+
+<img width="1310" alt="Screenshot 2024-07-15 at 18 01 34" src="https://github.com/user-attachments/assets/ed89844b-e7b7-47d4-85da-49e8028dcb32">
+
+The error above is from the jenkins console output. This is because jenkins does not have the privillege to write to the ansible-config-artifact directory despite setting permission chmod -R 777 ansible-config-artifact This was resolved by adding jenkins user to ubuntu group (has rwx permission)
+
+```
+sudo chown -R ubuntu:jenkins ansible-config-artifact
+
+sudo usermod -a -G jenkins ubuntu  # Add jenkins user to ubuntu group
+
+sudo groups ubuntu  # Confirm jenkins user have been added to ubuntu group
+
+sudo systemctl restart jenkins
+```
+
+Result:
+
+<img width="825" alt="Screenshot 2024-07-15 at 18 04 41" src="https://github.com/user-attachments/assets/efc3f717-e71b-4dae-a862-fbae0db1f54e">
+
+Now test the setup again. observe that the build was successful this time
